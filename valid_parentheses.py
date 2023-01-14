@@ -4,31 +4,33 @@ from itertools import accumulate
 import functions as funcs
 import operator as op
 
+OPEN_PARENTHESIS = '('
+PARENTHESES = (OPEN_PARENTHESIS, ')')
 
-def is_p(char):
-    return char in ('(', ')')
+is_a_parenthesis = partial(op.contains, PARENTHESES)
+is_open_parenthesis = partial(op.eq, OPEN_PARENTHESIS)
+count_parenthesis = partial(funcs.if_else, is_open_parenthesis, 1, -1)
 
 
-def count_p(char):
-    return 1 if char == '(' else -1
-
-
-def is_valid(count):
-    return count < 0
+def main_logic(counts):
+    last = 0
+    for count in counts:
+        if count == -1:
+            return False
+        last = count
+    return last == 0
 
 
 def valid_parentheses(string):
-    if len(string) == 0:
+    if funcs.is_empty(string):
         return True
 
     return funcs.compose(
-        funcs.filtrate(is_p),
-        funcs.mapper(count_p),
+        funcs.filtrate(is_a_parenthesis),
+        funcs.mapper(count_parenthesis),
         partial(accumulate, func=op.add),
-        funcs.mapper(is_valid),
-        all
-    )
-
+        main_logic
+    )(string)
 
 
 print(valid_parentheses("  ("), False, "should work for '  ('")

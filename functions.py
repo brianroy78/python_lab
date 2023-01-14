@@ -24,3 +24,11 @@ def filtrate(function) -> Callable:
 
 def mapper(function) -> Callable:
     return partial(map, function)
+
+
+def if_else(bool_func, true_value, false_value, value):
+    return true_value if bool_func(value) else false_value
+
+
+def is_empty(value) -> bool:
+    return len(value) == 0
