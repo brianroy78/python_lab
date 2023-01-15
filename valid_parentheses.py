@@ -1,35 +1,26 @@
-from functools import partial
-from itertools import accumulate
-
-import functions as funcs
+import functools as ft
+import itertools as it
 import operator as op
 
-OPEN_PARENTHESIS = '('
-PARENTHESES = (OPEN_PARENTHESIS, ')')
+import functions as f
 
-is_a_parenthesis = partial(op.contains, PARENTHESES)
-is_open_parenthesis = partial(op.eq, OPEN_PARENTHESIS)
-count_parenthesis = partial(funcs.if_else, is_open_parenthesis, 1, -1)
+is_valid = ft.partial(op.le, 0)
+count_parentheses = ft.partial(f.switch_case, 0, (f.Premise('(', 1), f.Premise(')', -1)))
 
 
-def main_logic(counts):
-    last = 0
-    for count in counts:
-        if count == -1:
-            return False
-        last = count
-    return last == 0
+def main_logic(length, counts):
+    others = it.islice(counts, length - 1)
+    are_valid = f.compose(f.mapper(is_valid), all)
+    return are_valid(others) and next(counts) == 0
 
 
 def valid_parentheses(string):
-    if funcs.is_empty(string):
+    if f.is_empty(string):
         return True
-
-    return funcs.compose(
-        funcs.filtrate(is_a_parenthesis),
-        funcs.mapper(count_parenthesis),
-        partial(accumulate, func=op.add),
-        main_logic
+    return f.compose(
+        f.mapper(count_parentheses),
+        ft.partial(it.accumulate, func=op.add),
+        ft.partial(main_logic, len(string))
     )(string)
 
 
@@ -38,3 +29,4 @@ print(valid_parentheses(")test"), False, "should work for ')test'")
 print(valid_parentheses(""), True, "should work for ''")
 print(valid_parentheses("hi())("), False, "should work for 'hi())('")
 print(valid_parentheses("hi(hi)()"), True, "should work for 'hi(hi)()'")
+
