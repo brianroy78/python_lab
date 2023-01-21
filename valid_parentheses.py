@@ -20,9 +20,8 @@ def main_logic(length, counts):
 def valid_parentheses(string: str) -> bool:
     if f.is_empty(string):
         return True
-    a: list[str] = [s for s in string]
     return (
-        fu.IterFunctor  (a)
+        fu.IterFunctor(string)
         .map(count_parentheses)
         .apply(ft.partial(it.accumulate, func=op.add))
         .flat(ft.partial(main_logic, len(string)))

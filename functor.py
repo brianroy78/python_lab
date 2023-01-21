@@ -1,37 +1,35 @@
 import typing as ty
 
 A = ty.TypeVar("A")
-D = ty.TypeVar("D")
-E = ty.Callable[[A], D]
-G = ty.Callable[[A], ty.Iterator[D]]
+B = ty.TypeVar("B")
+IterA = ty.Iterable[A]
+IterB = ty.Iterable[B]
+A_B = ty.Callable[[A], B]
+A_IterB = ty.Callable[[A], IterB]
+IterA_IterB = ty.Callable[[IterA], IterB]
+IterA_B = ty.Callable[[IterA], B]
 
 
 class Functor(ty.Generic[A]):
     def __init__(self, value: A):
         self.value: A = value
 
-    def apply(self, func: E) -> "Functor[D]":
+    def apply(self, func: A_B) -> "Functor[B]":
         return Functor(func(self.value))
 
-    def split(self, func: G) -> "IterFunctor[D]":
+    def split(self, func: A_IterB) -> "IterFunctor[B]":
         return IterFunctor(func(self.value))
-
-
-B = ty.Iterator[A]
-F = ty.Iterator[D]
-C = ty.Callable[[B], F]
-H = ty.Callable[[B], D]
 
 
 class IterFunctor(ty.Generic[A]):
-    def __init__(self, value: B):
-        self.value: B = value
+    def __init__(self, value: IterA):
+        self.value: IterA = value
 
-    def apply(self, func: C) -> "IterFunctor[D]":
+    def apply(self, func: IterA_IterB) -> "IterFunctor[B]":
         return IterFunctor(func(self.value))
 
-    def map(self, func: E) -> "IterFunctor[D]":
+    def map(self, func: A_B) -> "IterFunctor[B]":
         return IterFunctor(map(func, self.value))
 
-    def flat(self, func: H) -> Functor[D]:
+    def flat(self, func: IterA_B) -> Functor[B]:
         return Functor(func(self.value))
