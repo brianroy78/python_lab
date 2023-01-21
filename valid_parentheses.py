@@ -3,18 +3,20 @@ import itertools as it
 import operator as op
 
 import functions as f
-import functor as fu
+import functors as fu
 
-is_valid = ft.partial(op.le, 0)
 count_parentheses = ft.partial(
     f.switch_case, 0, (f.Premise("(", 1), f.Premise(")", -1))
 )
 
 
 def main_logic(length, counts):
-    others = it.islice(counts, length - 1)
-    are_valid = f.compose(f.mapper(is_valid), all)
-    return are_valid(others) and next(counts) == 0
+    return (
+        fu.IterFunctor(it.islice(counts, length - 1))
+        .map(ft.partial(op.le, 0))
+        .flat(all)
+        .apply(ft.partial(op.and_, next(counts) == 0))
+    ).value
 
 
 def valid_parentheses(string: str) -> bool:
@@ -23,7 +25,7 @@ def valid_parentheses(string: str) -> bool:
     return (
         fu.IterFunctor(string)
         .map(count_parentheses)
-        .apply(ft.partial(it.accumulate, func=op.add))
+        .accumulate(op.add)
         .flat(ft.partial(main_logic, len(string)))
         .value
     )

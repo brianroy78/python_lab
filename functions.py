@@ -1,45 +1,5 @@
-from dataclasses import dataclass
-
-import functools as ft
 import typing as ty
-
-
-def compose(*functions: ty.Callable) -> ty.Callable:
-    if len(functions) == 0:
-        def nothing(param):
-            return param
-
-        return nothing
-
-    def compose_(param):
-        result = param
-        for func in functions:
-            result = func(result)
-        return result
-
-    return compose_
-
-
-InputValue = ty.TypeVar('InputValue')
-OutputValue = ty.TypeVar('OutputValue')
-
-InputIterator = ty.Iterator[InputValue]
-OutputIterator = ty.Iterator[OutputValue]
-
-InputFiltrate = ty.Callable[[InputValue], bool]
-OutputFiltrate = ty.Callable[[InputIterator], InputIterator]
-
-
-def filtrate(function: InputFiltrate) -> OutputFiltrate:
-    return ft.partial(filter, function)
-
-
-InputMapper = ty.Callable[[InputValue], OutputValue]
-OutputMapper = ty.Callable[[InputIterator], OutputIterator]
-
-
-def mapper(function: InputMapper) -> OutputMapper:
-    return ft.partial(map, function)
+from dataclasses import dataclass
 
 
 def if_else(bool_func, true_value, false_value, value):

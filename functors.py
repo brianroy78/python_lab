@@ -1,4 +1,5 @@
 import typing as ty
+import itertools as it
 
 A = ty.TypeVar("A")
 B = ty.TypeVar("B")
@@ -8,6 +9,8 @@ A_B = ty.Callable[[A], B]
 A_IterB = ty.Callable[[A], IterB]
 IterA_IterB = ty.Callable[[IterA], IterB]
 IterA_B = ty.Callable[[IterA], B]
+X = ty.Callable[[A, A], B]
+GuardA = ty.Callable[[A], ty.TypeGuard[A]]
 
 
 class Functor(ty.Generic[A]):
@@ -31,5 +34,11 @@ class IterFunctor(ty.Generic[A]):
     def map(self, func: A_B) -> "IterFunctor[B]":
         return IterFunctor(map(func, self.value))
 
+    def filter(self, func: GuardA) -> "IterFunctor[A]":
+        return IterFunctor(filter(func, self.value))
+
     def flat(self, func: IterA_B) -> Functor[B]:
         return Functor(func(self.value))
+
+    def accumulate(self, func: X) -> "IterFunctor[B]":
+        return IterFunctor(it.accumulate(self.value, func))
